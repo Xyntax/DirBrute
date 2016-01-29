@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# email: ringzero@0x557.org
-# github: http://github.com/ring04h
+# email: i@cdxy.me
+# github: http://github.com/Xyntax
 
 '''
 	多线程并行计算，Queue.get_nowait()非阻塞
@@ -10,17 +10,16 @@
 		* 线程组遍历，使每个独立的线程join()，等待主线程退出后，再进入主进程
 '''
 
-import json
-import sys
 import libs.requests as requests
 from libs.output import *
 from libs.utils.FileUtils import FileUtils
+from libs.checkWAF import checkWaf
 import threading
 import Queue
 import optparse
 
 # 全局配置
-using_dic = './dics/dirs.txt'  # 使用的字典文件
+using_dic = ''  # 使用的字典文件
 threads_count = 1  # 线程数
 timeout = 3  # 超时时间
 allow_redirects = True  # 是否允许URL重定向
@@ -72,6 +71,9 @@ def fuzz_start(siteurl, file_ext):
     if not siteurl.startswith('http://'):
         siteurl = 'http://%s' % siteurl
 
+    # 检查waf是否存在
+    checkWaf(url=siteurl, header=headers, proxy=proxies, timeout=timeout, allow_redirects=allow_redirects)
+
     global dir_exists
     dir_exists = []
 
@@ -105,27 +107,24 @@ def fuzz_start(siteurl, file_ext):
 
 
 if __name__ == "__main__":
-    # if len(sys.argv) == 3:
-    #     fuzz_start(sys.argv[1], sys.argv[2])
-    #     sys.exit(0)
-    # else:
-    #     print ("usage: %s www.wooyun.org php" % sys.argv[0])
-    #     sys.exit(-1)
-    parser = optparse.OptionParser('usage: %prog [options] target')
+    parser = optparse.OptionParser('usage: %prog target [options] \n'
+                                   'Example: python dirfuzz.py www.cdxy.me -e php -t 10\n'
+                                   '         python dirfuzz.py www.cdxy.me -t 10 -d ./dics/ASP/uniq')
     parser.add_option('-e', '--ext', dest='ext',
                       default='html', type='string',
-                      help='Extension: php asp aspx jsp...')
+                      help='Choose the extension: php asp aspx jsp...')
     parser.add_option('-t', '--threads', dest='threads_num',
                       default=10, type='int',
                       help='Number of threads. default = 10')
-    parser.add_option('-o', '--output', dest='output', default=None,
-                      type='string', help='Output file name. default is {target}.txt')
-    # parser = optparse.OptionParser('Example: python dirfuzz.py www.cdxy.me -e php -t 10')
+    parser.add_option('-d', '--dic', dest='dic_path', default='./dics/dirs.txt',
+                      type='string', help='Default dictionaty: ./dics/dirs.txt')
     (options, args) = parser.parse_args()
 
+    if options.dic_path:
+        using_dic = options.dic_path
     if options.threads_num:
         threads_count = options.threads_num
-    if options.ext and len(sys.argv) > 1:
+    if len(sys.argv) > 1:
         fuzz_start(sys.argv[1], options.ext)
     else:
         parser.print_help()

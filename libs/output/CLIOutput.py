@@ -22,13 +22,13 @@ import sys
 from libs.utils.FileUtils import *
 from libs.colorama import *
 import platform
+
 if platform.system() == 'Windows':
     from ctypes import windll, create_string_buffer
     from libs.colorama.win32 import *
 
 
 class CLIOutput(object):
-
     def __init__(self):
         init()
         self.lastLength = 0
@@ -90,12 +90,12 @@ class CLIOutput(object):
             contentLength = FileUtils.sizeHuman(len(response.body))
 
         message = '[{0}] {1} - {2} - {3}'.format(
-            time.strftime('%H:%M:%S'), 
+            time.strftime('%H:%M:%S'),
             status,
             contentLength.rjust(6, ' '),
-            ('/{0}'.format(path) if self.basePath is None 
-                else '{0}{1}'.format(self.basePath, path)))
-    
+            ('/{0}'.format(path) if self.basePath is None
+             else '{0}{1}'.format(self.basePath, path)))
+
         try:
             self.mutexCheckedPaths.acquire()
             if path in self.checkedPaths:
@@ -119,7 +119,6 @@ class CLIOutput(object):
 
         self.printNewLine(message)
 
-
     def printLastPathEntry(self, path, index, length):
         percentage = lambda x, y: float(x) / float(y) * 100
         message = '{1:.2f}% - Last request to: {0}'.format(path, percentage(index, length))
@@ -137,16 +136,20 @@ class CLIOutput(object):
         self.printNewLine(message)
 
     def printWarning(self, reason):
-        message = Style.BRIGHT + Fore.YELLOW + reason + Style.RESET_ALL
+        message = Fore.RED + reason + Style.RESET_ALL
         self.printNewLine(message)
 
     def printHeader(self, text):
         message = Style.BRIGHT + Fore.MAGENTA + text + Style.RESET_ALL
         self.printNewLine(message)
 
+    def printInfo(self, text):
+        message = Fore.GREEN + text + Style.RESET_ALL
+        self.printNewLine(message)
+
     def printConfig(self, extensions, threads, wordlistSize):
         separator = Fore.MAGENTA + ' | ' + Fore.YELLOW
-        config =  Style.BRIGHT + Fore.YELLOW
+        config = Style.BRIGHT + Fore.YELLOW
         config += 'Extensions: {0}'.format(Fore.CYAN + extensions + Fore.YELLOW)
         config += separator
         config += 'Threads: {0}'.format(Fore.CYAN + threads + Fore.YELLOW)
@@ -156,8 +159,7 @@ class CLIOutput(object):
         self.printNewLine(config)
 
     def printTarget(self, target):
-        config =  Style.BRIGHT + Fore.YELLOW
+        config = Style.BRIGHT + Fore.YELLOW
         config += 'Target: {0}'.format(Fore.CYAN + target + Fore.YELLOW)
         config += Style.RESET_ALL
         self.printNewLine(config)
-
