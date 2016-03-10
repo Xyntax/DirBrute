@@ -1,7 +1,9 @@
 # DirBrute  
-多线程WEB目录爆破工具(含字典)  
+多线程WEB目录爆破工具(含字典)    
+Multi-thread WEB directory blasting tool(with dics inside)  
+
 可自定义线程，探测WAF，加载本地字典  
-  
+
 ```
 Usage: dirbrute.py target [options] 
 Example: python dirbrute.py www.cdxy.me -e php -t 10
