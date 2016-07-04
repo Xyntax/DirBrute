@@ -27,27 +27,36 @@ IDS_WAF_CHECK_TIMEOUT = 10
 
 
 def checkWaf(url, header="", proxy="", timeout=5, allow_redirects=False):
-    code = []
-    payload = '/cdxy.old/.svn/.bashrc/.mdb/.inc'
+    payload = '/cdxy.old/.svn/.bashrc/.mdb/.inc/etc/passwd'
     retVal = False
+    retVal1 = False
     infoMsg = "checking if the target is protected by \n"
     infoMsg += "some kind of WAF/IPS/IDS\n"
     CLIOutput().printInfo(infoMsg)
 
     try:
-        code.append(requests.get(url, stream=True, headers=header, timeout=timeout,
-                                 proxies=proxy,
-                                 allow_redirects=allow_redirects).status_code)
-        code.append(
-            requests.get(url + payload, stream=True, headers=header, timeout=timeout,
-                         proxies=proxy,
-                         allow_redirects=allow_redirects).status_code)
-    except:
+        code = requests.get(url, stream=True, headers=header, timeout=timeout,
+                            proxies=proxy,
+                            allow_redirects=allow_redirects).status_code
+        if code != 200:
+            retVal = True
+    except Exception, e:
+        print e
         retVal = True
 
-    if code[0] != 200 or retVal:
+    try:
+        code1 = requests.get(url + payload, stream=True, headers=header, timeout=timeout,
+                             proxies=proxy,
+                             allow_redirects=allow_redirects).status_code
+        if code1 != 404:
+            retVal1 = True
+    except Exception, e:
+        print e
+        retVal1 = True
+
+    if retVal:
         warnMsg = 'Target URL not stable\n'
-        warnMsg += '[' + code[0] + '] ' + url + '\n'
+        warnMsg += '[' + str(code) + '] ' + url + '\n'
         CLIOutput().printWarning(warnMsg)
 
         message = "are you sure that you want to \n"
@@ -57,7 +66,8 @@ def checkWaf(url, header="", proxy="", timeout=5, allow_redirects=False):
         if not output or output[0] not in ("Y", "y"):
             print 'User Quit!'
             sys.exit(0)
-    if code[1] != 404:
+
+    if retVal1:
         warnMsg = "heuristics detected that the target \n"
         warnMsg += "is protected by some kind of WAF/IPS/IDS\n"
         CLIOutput().printWarning(warnMsg)

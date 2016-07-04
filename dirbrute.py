@@ -108,8 +108,8 @@ def fuzz_start(siteurl, file_ext):
 
 if __name__ == "__main__":
     parser = optparse.OptionParser('usage: %prog target [options] \n'
-                                   'Example: python dirfuzz.py www.cdxy.me -e php -t 10\n'
-                                   '         python dirfuzz.py www.cdxy.me -t 10 -d ./dics/ASP/uniq')
+                                   'Example: python %prog www.cdxy.me -e php -t 10\n'
+                                   '         python %prog www.cdxy.me -t 10 -d ./dics/ASP/uniq')
     parser.add_option('-e', '--ext', dest='ext',
                       default='html', type='string',
                       help='Choose the extension: php asp aspx jsp...')
