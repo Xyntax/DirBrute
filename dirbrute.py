@@ -55,8 +55,8 @@ class WyWorker(threading.Thread):
             try:
                 url = self.queue.get_nowait()
                 results = dir_check(url)
-                if results.status_code == requests.codes.ok:
-                    dir_exists.append(url)
+                if results.status_code == requests.codes.ok or results.status_code == requests.codes.forbidden:
+                    dir_exists.append("[%s]:%s" % (results.status_code, results.url))
                     # print results.status_code
                     msg = "[%s]:%s \n" % (results.status_code, results.url)
                     self.output.printInLine(msg)
@@ -102,7 +102,10 @@ def fuzz_start(siteurl, file_ext):
 
     output.printHeader('-' * 60)
     for url in dir_exists:
-        output.printWarning(url)
+        if url.startswith('[{}]'.format(requests.codes.ok)):
+            output.printInfo(url)
+        elif url.startswith('[{}]'.format(requests.codes.forbidden)):
+            output.printWarning(url)
     output.printHeader('-' * 60)
 
 
